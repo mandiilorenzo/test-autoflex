@@ -38,7 +38,7 @@ public class ProductCompositionResource {
 
         return Response.status(Response.Status.CREATED).entity(composition).build();
     }
-    
+
     public static class CompositionDTO {
         public Long productId;
         public Long materialId;
