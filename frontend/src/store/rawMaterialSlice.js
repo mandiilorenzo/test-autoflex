@@ -16,7 +16,7 @@ const rawMaterialSlice = createSlice({
         loading: false,
         error: null,
     },
-    reducers: {}, 
+    reducers: {},
     extraReducers: (builder) => {
         builder
             .addCase(fetchRawMaterials.pending, (state) => {
@@ -24,7 +24,7 @@ const rawMaterialSlice = createSlice({
             })
             .addCase(fetchRawMaterials.fulfilled, (state, action) => {
                 state.loading = false;
-                state.list = action.payload; 
+                state.list = action.payload;
             })
             .addCase(fetchRawMaterials.rejected, (state, action) => {
                 state.loading = false;
@@ -32,5 +32,21 @@ const rawMaterialSlice = createSlice({
             });
     },
 });
+
+export const deleteRawMaterial = createAsyncThunk(
+    'rawMaterials/delete',
+    async (id, { dispatch }) => {
+        await api.delete(`/raw-materials/${id}`);
+        dispatch(fetchRawMaterials());
+    }
+);
+
+export const updateRawMaterial = createAsyncThunk(
+    'rawMaterials/update',
+    async ({ id, data }, { dispatch }) => {
+        await api.put(`/raw-materials/${id}`, data);
+        dispatch(fetchRawMaterials()); 
+    }
+);
 
 export default rawMaterialSlice.reducer;
