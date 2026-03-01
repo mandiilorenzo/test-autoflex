@@ -25,7 +25,7 @@ const Production = () => {
                 {!loading && totalPotentialValue > 0 && (
                     <Paper elevation={0} sx={{ p: 1, bgcolor: '#f0f4f8', border: '1px solid #d1d9e0' }}>
                         <Typography variant="subtitle2" color="textSecondary">
-                            Valor Total Potencial: <strong>R$ {totalPotentialValue.toFixed(2)}</strong>
+                            Valor Total(potencial): <strong>R$ {totalPotentialValue.toFixed(2)}</strong>
                         </Typography>
                     </Paper>
                 )}
@@ -69,7 +69,7 @@ const Production = () => {
                     ) : (
                         <Grid item xs={12}>
                             <Typography variant="body1" color="textSecondary" align="center" sx={{ mt: 4 }}>
-                                Nenhuma sugestão disponível. Verifique estoque, composições dos produtos e endpoint de sugestão no backend.
+                                Nenhuma sugestão disponível. Verifique estoque e composições dos produtos.
                             </Typography>
                         </Grid>
                     )}
