@@ -1,14 +1,18 @@
 package com.autoflex.resource;
 
-import com.autoflex.model.Product;
-import com.autoflex.model.ProductComposition;
-import com.autoflex.model.RawMaterial;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.autoflex.model.Product;
+import com.autoflex.model.ProductComposition;
+import com.autoflex.model.RawMaterial;
+
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 
 @Path("/production-suggestion")
 @Produces(MediaType.APPLICATION_JSON)
@@ -30,16 +34,27 @@ public class ProductionResource {
         for (Product p : products) {
             List<ProductComposition> components = ProductComposition.list("product", p);
 
-            if (components.isEmpty()) continue;
+            if (components.isEmpty()) {
+                continue;
+            }
 
             int possibleQuantity = Integer.MAX_VALUE;
+            boolean invalidComposition = false;
 
             for (ProductComposition comp : components) {
-                double available = virtualStock.get(comp.rawMaterial.id);
+                Double available = virtualStock.get(comp.rawMaterial.id);
+                if (available == null || comp.quantity == null || comp.quantity <= 0) {
+                    invalidComposition = true;
+                    break;
+                }
                 int canMake = (int) (available / comp.quantity);
                 if (canMake < possibleQuantity) {
                     possibleQuantity = canMake;
                 }
+            }
+
+            if (invalidComposition) {
+                continue;
             }
 
             if (possibleQuantity > 0) {
@@ -55,8 +70,9 @@ public class ProductionResource {
 
         return new ProductionResponse(suggestedProducts, totalValue);
     }
-    
+
     public static class ProductionResponse {
+
         public List<SuggestedProduct> suggestions;
         public Double totalPotentialValue;
 
@@ -67,6 +83,7 @@ public class ProductionResource {
     }
 
     public static class SuggestedProduct {
+
         public String productName;
         public Integer quantity;
         public Double subtotal;
