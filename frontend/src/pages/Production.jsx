@@ -36,7 +36,7 @@ const Production = () => {
             ) : (
                 <Grid container spacing={3}>
                     {error && (
-                        <Grid item xs={12}>
+                        <Grid size={12}>
                             <Alert severity="warning">
                                 Falha ao buscar sugestões: {String(error)}
                             </Alert>
@@ -45,7 +45,7 @@ const Production = () => {
 
                     {suggestions && suggestions.length > 0 ? (
                         suggestions.map((item, index) => (
-                            <Grid item xs={12} sm={6} md={4} key={index}>
+                            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
                                 <Card elevation={3} sx={{ borderTop: '4px solid #e67e22' }}>
                                     <CardContent>
                                         <Typography variant="h6" gutterBottom>{item.productName}</Typography>
@@ -67,7 +67,7 @@ const Production = () => {
                             </Grid>
                         ))
                     ) : (
-                        <Grid item xs={12}>
+                        <Grid size={12}>
                             <Typography variant="body1" color="textSecondary" align="center" sx={{ mt: 4 }}>
                                 Nenhuma sugestão disponível. Verifique estoque e composições dos produtos.
                             </Typography>
