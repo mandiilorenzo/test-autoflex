@@ -6,12 +6,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "raw_materials")
-public class RawMaterial extends PanacheEntity {
+@Table(name = "products")
+public class Product extends PanacheEntity {
 
     @Column(nullable = false)
     public String name;
 
-    @Column(name = "stock_quantity", nullable = false)
-    public Double stockQuantity;
+    @Column(nullable = false)
+    public Double price;
 }
