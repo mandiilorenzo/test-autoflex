@@ -4,18 +4,17 @@ import {
     Container, Typography, Button, Table, TableBody,
     TableCell, TableContainer, TableHead, TableRow,
     Paper, CircularProgress, Box, TextField, Dialog,
-    DialogActions, DialogContent, DialogTitle, IconButton
+    DialogActions, DialogContent, DialogTitle, IconButton, Alert
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { fetchRawMaterials, deleteRawMaterial, updateRawMaterial } from '../store/rawMaterialSlice';
-import api from '../services/api';
-import ConfirmDialog from '../components/ConfirmDialog'; 
+import { fetchRawMaterials, createRawMaterial, deleteRawMaterial, updateRawMaterial } from '../store/rawMaterialSlice';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 const RawMaterials = () => {
     const dispatch = useDispatch();
-    const { list, loading } = useSelector((state) => state.rawMaterials);
+    const { list, loading, error } = useSelector((state) => state.rawMaterials);
     const [open, setOpen] = useState(false);
     const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({ name: '', stockQuantity: '' });
@@ -39,12 +38,16 @@ const RawMaterials = () => {
     };
 
     const handleSave = async () => {
+        const payload = {
+            name: formData.name,
+            stockQuantity: Number(formData.stockQuantity),
+        };
+
         try {
             if (editingId) {
-                await dispatch(updateRawMaterial({ id: editingId, data: formData })).unwrap();
+                await dispatch(updateRawMaterial({ id: editingId, data: payload })).unwrap();
             } else {
-                await api.post('/raw-materials', formData);
-                dispatch(fetchRawMaterials());
+                await dispatch(createRawMaterial(payload)).unwrap();
             }
             handleClose();
         } catch (error) {
@@ -57,10 +60,15 @@ const RawMaterials = () => {
         setConfirmOpen(true);
     };
 
-    const handleConfirmDelete = () => {
-        dispatch(deleteRawMaterial(idToDelete));
-        setConfirmOpen(false);
-        setIdToDelete(null);
+    const handleConfirmDelete = async () => {
+        try {
+            await dispatch(deleteRawMaterial(idToDelete)).unwrap();
+            setConfirmOpen(false);
+            setIdToDelete(null);
+        } catch (deleteError) {
+            console.error('Erro ao excluir matéria-prima:', deleteError);
+            setConfirmOpen(false);
+        }
     };
 
     return (
@@ -75,6 +83,12 @@ const RawMaterials = () => {
                     Nova Matéria-Prima
                 </Button>
             </Box>
+
+            {error && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    Não foi possível concluir a operação: {String(error)}
+                </Alert>
+            )}
 
             {loading ? (
                 <Box display="flex" justifyContent="center"><CircularProgress /></Box>

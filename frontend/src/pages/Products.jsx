@@ -1,24 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     Container, Typography, Button, Table, TableBody, TableCell,
     TableContainer, TableHead, TableRow, Paper, CircularProgress,
     Box, TextField, Dialog, DialogActions, DialogContent,
-    DialogTitle, MenuItem, IconButton, List, ListItem, ListItemText, Divider
+    DialogTitle, MenuItem, IconButton, List, ListItem, ListItemText, Divider, Alert
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { fetchProducts } from '../store/productSlice';
 import { fetchRawMaterials } from '../store/rawMaterialSlice';
-import { createProduct, updateProduct } from '../store/productSlice';
-import api from '../services/api';
+import { createProduct, updateProduct, deleteProduct } from '../store/productSlice';
 import ConfirmDialog from '../components/ConfirmDialog';
 
 const Products = () => {
     const dispatch = useDispatch();
     const products = useSelector((state) => state.products?.list || []);
     const loading = useSelector((state) => state.products?.loading);
+    const error = useSelector((state) => state.products?.error);
     const materials = useSelector((state) => state.rawMaterials?.list || []);
 
     const [open, setOpen] = useState(false);
@@ -51,7 +51,8 @@ const Products = () => {
     };
 
     const addMaterialToRecipe = () => {
-        const material = materials.find(m => m.id === selectedMaterial);
+        const selectedId = Number(selectedMaterial);
+        const material = materials.find((m) => Number(m.id) === selectedId);
         if (material && quantity > 0) {
             if (!composition.find(c => c.rawMaterialId === material.id)) {
                 setComposition([...composition, {
@@ -95,6 +96,12 @@ const Products = () => {
                     Novo Produto
                 </Button>
             </Box>
+
+            {error && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    Não foi possível concluir a operação: {String(error)}
+                </Alert>
+            )}
 
             {loading ? (
                 <Box display="flex" justifyContent="center"><CircularProgress /></Box>
@@ -176,9 +183,14 @@ const Products = () => {
                 title="Excluir Produto"
                 message="Deseja realmente excluir este produto? A composição também será removida."
                 onConfirm={async () => {
-                    await api.delete(`/products/${idToDelete}`);
-                    dispatch(fetchProducts());
-                    setConfirmOpen(false);
+                    try {
+                        await dispatch(deleteProduct(idToDelete)).unwrap();
+                        setConfirmOpen(false);
+                        setIdToDelete(null);
+                    } catch (deleteError) {
+                        console.error('Erro ao excluir produto:', deleteError);
+                        setConfirmOpen(false);
+                    }
                 }}
                 onCancel={() => setConfirmOpen(false)}
             />
