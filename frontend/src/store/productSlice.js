@@ -1,6 +1,54 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../services/api';
 
+const syncProductCompositions = async (productId, compositions = []) => {
+    if (!Array.isArray(compositions) || compositions.length === 0) {
+        return;
+    }
+
+    const normalizedCompositions = compositions
+        .map((item) => {
+            const materialId = Number(
+                item?.rawMaterialId ??
+                item?.materialId ??
+                item?.rawMaterial?.id
+            );
+
+            const quantity = Number(item?.quantity);
+
+            return {
+                materialId,
+                quantity,
+            };
+        })
+        .filter((item) => Number.isFinite(item.materialId) && Number.isFinite(item.quantity) && item.quantity > 0);
+
+    if (normalizedCompositions.length === 0) {
+        return;
+    }
+
+    const existingResponse = await api.get(`/product-compositions/product/${productId}`);
+    const existingMaterialIds = new Set(
+        (existingResponse.data || [])
+            .map((item) => Number(item?.rawMaterial?.id ?? item?.rawMaterialId ?? item?.materialId))
+            .filter((id) => Number.isFinite(id))
+    );
+
+    const missingCompositions = normalizedCompositions.filter(
+        (item) => !existingMaterialIds.has(item.materialId)
+    );
+
+    await Promise.all(
+        missingCompositions.map((item) =>
+            api.post('/product-compositions', {
+                productId,
+                materialId: item.materialId,
+                quantity: item.quantity,
+            })
+        )
+    );
+};
+
 export const fetchProducts = createAsyncThunk('products/fetchAll', async () => {
     const response = await api.get('/products');
     return response.data;
@@ -9,7 +57,13 @@ export const fetchProducts = createAsyncThunk('products/fetchAll', async () => {
 export const createProduct = createAsyncThunk(
     'products/create',
     async (productData, { dispatch }) => {
-        const response = await api.post('/products', productData);
+        const productPayload = {
+            name: productData.name,
+            price: productData.price,
+        };
+
+        const response = await api.post('/products', productPayload);
+        await syncProductCompositions(response.data?.id, productData.compositions);
         dispatch(fetchProducts());
         return response.data;
     }
@@ -18,7 +72,13 @@ export const createProduct = createAsyncThunk(
 export const updateProduct = createAsyncThunk(
     'products/update',
     async ({ id, data }, { dispatch }) => {
-        const response = await api.put(`/products/${id}`, data);
+        const productPayload = {
+            name: data.name,
+            price: data.price,
+        };
+
+        const response = await api.put(`/products/${id}`, productPayload);
+        await syncProductCompositions(id, data.compositions);
         dispatch(fetchProducts()); 
         return response.data;
     }
