@@ -41,7 +41,13 @@ const Products = () => {
         if (product) {
             setEditingId(product.id);
             setProductData({ name: product.name, price: product.price });
-            setComposition(product.compositions || []);
+            setComposition(
+                (product.compositions || []).map((item) => ({
+                    rawMaterialId: Number(item?.rawMaterialId ?? item?.materialId ?? item?.rawMaterial?.id),
+                    name: item?.name ?? item?.rawMaterial?.name ?? 'Matéria-prima',
+                    quantity: Number(item?.quantity ?? 0),
+                }))
+            );
         } else {
             setEditingId(null);
             setProductData({ name: '', price: '' });
