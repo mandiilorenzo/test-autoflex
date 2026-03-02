@@ -108,7 +108,26 @@ Não há hooks customizados no projeto no momento. O app usa hooks nativos e de 
 
 Configuração em `src/services/api.js`:
 
-- Base URL: `http://localhost:8080`
+- Base URL via variável: `VITE_API_URL`
+- Fallback local (se variável não existir): `http://localhost:8080`
+
+### Configuração de ambiente
+
+Desenvolvimento local (opcional, recomendado):
+
+```bash
+cp .env.example .env.local
+
+# arquivo .env.local
+VITE_API_URL=http://localhost:8080
+```
+
+Deploy (Vercel):
+
+1. Acesse o projeto no Vercel.
+2. Vá em **Settings > Environment Variables**.
+3. Crie a variável `VITE_API_URL` com a URL pública do backend (ex.: `https://seu-backend.onrender.com`).
+4. Salve e faça **Redeploy**.
 
 Endpoints utilizados pelos slices:
 
@@ -153,6 +172,8 @@ Testes configurados no Vite (`vite.config.js`) com:
 - Node.js 18+ (recomendado 20+)
 - npm
 - Backend da Autoflex rodando em `http://localhost:8080`
+
+Se quiser forçar URL da API localmente, crie `.env.local` com `VITE_API_URL`.
 
 ### Instalação
 
