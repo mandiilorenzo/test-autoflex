@@ -1,5 +1,12 @@
 # Autoflex - Frontend
 
+## Demo (links ativos)
+
+- Frontend (Vercel): https://test-autoflex.vercel.app/
+- Backend/API (Railway): https://test-autoflex-production-f2a7.up.railway.app
+
+> Observação: a aplicação frontend consome a API do backend em produção via variável `VITE_API_URL`.
+
 Aplicação web em React para o desafio técnico Autoflex.
 
 O frontend permite:

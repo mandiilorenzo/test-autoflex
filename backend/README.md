@@ -1,5 +1,10 @@
 # Autoflex - Backend API
 
+## Demo (links ativos)
+
+- Frontend (Vercel): https://test-autoflex.vercel.app/
+- Backend/API (Railway): https://test-autoflex-production-f2a7.up.railway.app
+
 Backend em **Java 21 + Quarkus** para gerenciamento de:
 
 - produtos,
