@@ -1,4 +1,8 @@
 *
+!mvnw
+!pom.xml
+!src/**
+!.mvn/wrapper/maven-wrapper.properties
 !target/*-runner
 !target/*-runner.jar
 !target/lib/*
